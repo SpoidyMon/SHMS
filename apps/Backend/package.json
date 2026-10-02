@@ -1,0 +1,21 @@
+{
+  "name": "backend",
+  "module": "index.ts",
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "6",
+    "dotenv": "^18.0.5",
+    "express": "^5.2.1",
+    "pg": "^8.23.1"
+  },
+  "private": true,
+  "scripts": {
+    "dev": "bun --watch server.js",
+    "start": "bun server.js"
+  },
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^26.6.4",
+    "prisma": "6"
+  }
+}
