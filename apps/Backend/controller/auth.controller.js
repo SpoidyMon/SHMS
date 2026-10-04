@@ -339,13 +339,169 @@ const resendOtpController = async (req, res) => {
     }
 };
 
+const forgetPasswordController = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return res.status(400).json({
+                message: "Email is not provided"
+            })
+        }
+
+        const user = await Prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found",
+            })
+        }
+
+        if (!user.verified) {
+            return res.status(404).json({
+                message: "Email is not verified, Please verify "
+            })
+        }
+
+        await Prisma.otp.deleteMany({
+            where: {
+                userId: user.id
+            }
+        })
+
+        const otp = generateSecureOtp();
+        const html = getOtpHtml(otp);
+        const otpHash = await bcrypt.hash(otp, 10);
+
+        await Prisma.otp.create({
+            data: {
+                otphash: otpHash,
+                userId: user.id,
+                expiresAt: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+            }
+        })
+
+        await sendEmail(email, "OTP Verification", `Your OTP is ${otp}`, html);
+
+        return res.status(200).json({
+            message: "Password Reset Otp has been sent"
+        })
+
+
+    } catch (error) {
+        console.error("Error in forgotPasswordController: ", error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+
+}
+
+
+const resetPasswordController = async (req, res) => {
+    try {
+        const { email, otp, newPassword } = req.body;
+
+        if (!email || !otp || !newPassword) {
+            return res.status(405).json({
+                message: "All credentials required"
+            })
+        }
+
+        const user = await Prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+
+        if (!user) {
+            return res.status(404).json({
+                message: "User not found"
+            })
+        }
+
+        const latestOtp = await Prisma.otp.findFirst({
+            where: {
+                userId: user.id
+            },
+            orderBy: {
+                createdAt: "desc"
+            }
+        })
+
+        if (!latestOtp) {
+            return res.status(400).json({
+                message: "No OTP found. Please request a new verification code."
+            });
+        }
+
+        const isExpired = latestOtp.expiresAt
+            ? new Date() > new Date(latestOtp.expiresAt)
+            : (Date.now() - new Date(latestOtp.createdAt).getTime()) > 10 * 60 * 1000;
+
+        if (isExpired) {
+            await Prisma.otp.deleteMany({
+                where: { userId: user.id }
+            });
+            return res.status(400).json({
+                message: "OTP has expired. Please request a new verification code."
+            });
+        }
+
+        const isOtpValid = await bcrypt.compare(otp.toString(), latestOtp.otphash);
+        if (!isOtpValid) {
+            return res.status(400).json({
+                message: "Invalid OTP code"
+            });
+        }
+
+        const hashedpassword = await bcrypt.hash(newPassword, 10);
+
+        await Prisma.user.update({
+            where: {
+                id: user.id
+            },
+            data: {
+                hashedpassword
+            }
+
+        })
+
+        await Prisma.otp.deleteMany({
+            where: {
+                userId: user.id
+            }
+        })
+
+        return res.status(200).json({
+            message: "New Password has been Updated successfully"
+        })
+
+
+    } catch (error) {
+        console.error("Error in resetPasswordController: ", error);
+        return res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+
+
+}
+
+
+
 const authController = {
     registerController,
     loginController,
     logoutController,
     getMeController,
     verifyEmailController,
-    resendOtpController
+    resendOtpController,
+    forgetPasswordController,
+    resetPasswordController
 };
 
 export default authController;
