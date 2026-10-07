@@ -15,6 +15,6 @@ authrouter.post("/resend-otp", authController.resendOtpController);
 
 
 authrouter.post("/forget-password",authController.forgetPasswordController)
-authrouter.post("/reset-password",authController.forgetPasswordController)
+authrouter.post("/reset-password",authController.resetPasswordController)
 
 export default authrouter;

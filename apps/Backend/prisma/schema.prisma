@@ -9,12 +9,12 @@ datasource db {
 
 model user {
   id             Int      @id @default(autoincrement())
-  createdAt      DateTime @default(now())
   username       String?
   email          String   @unique
+  createdAt      DateTime @default(now())
+  role           Role     @default(USER)
   hashedpassword String
   verified       Boolean  @default(false) @map("Verified")
-  role           Role     @default(USER)
   otps           otp[]
 }
 
@@ -22,9 +22,8 @@ model otp {
   id        Int       @id @default(autoincrement())
   otphash   String
   createdAt DateTime  @default(now())
-  expiresAt DateTime?
-  // Foreign Key pointing to user.id
   userId    Int
+  expiresAt DateTime?
   user      user      @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 

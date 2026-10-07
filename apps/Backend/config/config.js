@@ -4,7 +4,9 @@ import "dotenv/config"
 if (!process.env.PORT) {
     throw new Error("PORT is not provided in the Enviornment Variables")
 }
-
+if (!process.env.CLIENT_URL) {
+    throw new Error("CLIENT_URL is not provided in the Enviornment Variables")
+}
 
 if (!process.env.DATABASE_URL) {
     throw new Error("DATABASE_URL is not provided in the Enviornment Variables")
@@ -33,6 +35,7 @@ if (!process.env.GOOGLE_USER) {
 
 const config = {
     PORT: process.env.PORT,
+    CLIENT_URL:process.env.CLIENT_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     JWT_SECRET: process.env.JWT_SECRET,
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
