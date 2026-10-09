@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
-import { login, register, verifyEmail, resendOtp } from '../Services/Auth.services'
+import { login, register, verifyEmail, resendOtp,forgotPassword,resetPassword } from '../Services/Auth.services'
 
 export const useAuth = () => {
     const { user, setUser, loading, setLoading } = useContext(AuthContext)
@@ -8,9 +8,9 @@ export const useAuth = () => {
     const handleLogin = async ({ email, password }) => {
         setLoading(true);
         try {
-            const response = await login({ email, password })
-            setUser(response?.user ?? null)
-            return
+            const data = await login({ email, password })
+            setUser(data?.user ?? null)
+            return data
         } catch (error) {
             console.log(error)
         } finally {
@@ -69,7 +69,26 @@ export const useAuth = () => {
         }
     }
 
-    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleVerifyEmail,handleResendOtp }
+    const handleForgetPassword = async ({ email }) => {
+        try {
+            const data = await forgotPassword({ email })
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error;
+        }
+    }
+    const handleResetPassword=async({email,otp,newPassword})=>{
+        try {
+            const data=await resetPassword({email,otp,newPassword})
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleForgetPassword, handleVerifyEmail, handleResendOtp }
 }
 
 export default useAuth
