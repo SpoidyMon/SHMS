@@ -3,13 +3,12 @@ import { Link, useLocation, useNavigate } from 'react-router'
 import useAuth from '../hooks/useAuth';
 
 const NewPdOtp = () => {
-
     const navigate = useNavigate();
     const location = useLocation();
-    const { handleResetPassword, handleResendOtp } = useAuth()
+    const { handleResetPassword, handleForgetPassword } = useAuth()
 
-    const [email, setEmail] = useState(location.state?.email || "")
-    const [otp, setOtp] = useState(["", "", "", "", "", "", "",]);
+    const [email] = useState(location.state?.email || "")
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [newPassword, setNewPassword] = useState("")
     const [timer, setTimer] = useState(60)
     const [message, setMessage] = useState({ text: "", type: "" })
@@ -28,7 +27,7 @@ const NewPdOtp = () => {
     }, [timer])
 
     const formatTimer = (seconds) => {
-        const mins = seconds / 60;
+        const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
         return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
     }
@@ -37,6 +36,7 @@ const NewPdOtp = () => {
         const cleanValue = value.replace(/[^0-9]/g, '')
         const newOtp = [...otp]
         newOtp[index] = cleanValue.slice(-1)
+        setOtp(newOtp)
 
         if (cleanValue && index < 5) {
             inputRefs.current[index + 1]?.focus()
@@ -48,12 +48,13 @@ const NewPdOtp = () => {
             inputRefs.current[index - 1]?.focus()
         }
     }
+
     const handlePaste = (e) => {
         e.preventDefault();
-        const pasteData = e.clipboardData.getdata('text').replace(/[^0-9]/g, '').slice(0 - 6);
+        const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
         if (!pasteData) return
 
-        const newOtp = [...otp]  // for half paste
+        const newOtp = [...otp]
         for (let i = 0; i < pasteData.length; i++) {
             newOtp[i] = pasteData[i]
         }
@@ -77,43 +78,43 @@ const NewPdOtp = () => {
         }
 
         const fullOtp = otp.join("")
-        if (fullOtp.length === 6) {
+        if (fullOtp.length !== 6) {
             setMessage({ text: "Please enter the complete 6-digit OTP code", type: "error" })
             return
         }
 
         setIsResetingPd(true);
         try {
-            const response = await handleResetPassword({ email, otp, newPassword })
+            const response = await handleResetPassword({ email, otp: fullOtp, newPassword })
             if (response) {
-                setMessage({ text: 'Email Verified Successfully', type: 'success' })
+                setMessage({ text: 'Password Reset Successfully! Redirecting to login...', type: 'success' })
                 setTimeout(() => {
                     navigate('/login')
                 }, 1500)
             }
         } catch (error) {
-            const errorMsg = error?.response?.data?.message || error.message || "Verification Failed"
+            const errorMsg = error?.response?.data?.message || error.message || "Password reset failed"
             setMessage({ text: errorMsg, type: "error" })
         } finally {
-            setIsResetingPd(true)
+            setIsResetingPd(false)
         }
-
     }
+
     const handleResend = async () => {
         if (timer > 0 || isResending) return
         if (!email.trim()) {
             setMessage({ text: 'Please enter your Email to send Otp', type: 'error' })
+            return
         }
         setIsResending(true);
         setMessage({ text: "", type: "" })
 
         try {
-            await handleResendOtp({ email })
+            await handleForgetPassword({ email })
             setMessage({ text: "A new OTP has been sent to your email!", type: "success" })
             setTimer(60)
             setOtp(["", "", "", "", "", ""])
             inputRefs.current[0]?.focus()
-
         } catch (error) {
             const errorMsg = error?.response?.data?.message || error.message || "Failed to resend Otp"
             setMessage({ text: errorMsg, type: "error" })
@@ -125,9 +126,9 @@ const NewPdOtp = () => {
     return (
         <main>
             <div className='h-screen w-full bg-[#c5bee5] justify-items-center content-center'>
-                <div className="box-container bg-[#ffffff] h-[540px] w-[420px] p-6 content-between" >
+                <div className="box-container bg-[#ffffff] min-h-[540px] w-[420px] p-6 content-between rounded shadow-md" >
                     <h1 className='text-[22px] font-bold'>Reset <span className='text-[#fe4c4d]'>Password!!</span></h1>
-                    <p className='font-[350]'>We send an otp to <span className='font-semibold'>{email !== "" ? email : "registered email"}</span><br />Enter it below to reset password</p>
+                    <p className='font-[350]'>We sent an OTP to <span className='font-semibold'>{email !== "" ? email : "your email"}</span><br />Enter it below to reset password</p>
 
                     <div className="form-container mt-6 text-gray-600 ">
                         <hr className='mb-5 ' />
@@ -136,7 +137,7 @@ const NewPdOtp = () => {
                                 {message.text}
                             </div>
                         )}
-                        <form onSubmit={(e)=>{handleSubmit(e)}} className='flex flex-col gap-[8px]' >
+                        <form onSubmit={handleSubmit} className='flex flex-col gap-[8px]' >
 
                             <div>
                                 <p className="mt-2 text-sm text-gray-500"> Enter the 6-digit code sent to your email. </p>
@@ -175,16 +176,33 @@ const NewPdOtp = () => {
 
                             <div className="input mt-[2px]">
                                 <label htmlFor="newPassword" className='text-sm text-gray-500'>Enter New Password</label><br />
-                                <input onChange={(e) => { setNewPassword(e.target.value) }} className='border border-gray-300 p-[5px] mt-2 w-full' type="password" placeholder='Password' name='newPassword' id='newPassword' />
+                                <input
+                                    id='newPassword'
+                                    name='newPassword'
+                                    type="password"
+                                    required
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder='Password'
+                                    className='border border-gray-300 p-[5px] mt-2 w-full rounded'
+                                />
                             </div>
 
-                            <button  type='submit' className='bg-[#215df5] mt-2 h-[36px] text-xl text-[#f0f0f0] p-1 rounded-[5px]'>{isResetingPd ? "Reset Password" : "Reseting..."}</button>
+                            <button
+                                type='submit'
+                                disabled={isResetingPd}
+                                className='bg-[#215df5] hover:bg-[#1a4cd2] transition mt-2 h-[36px] text-lg text-[#f0f0f0] p-1 rounded-[5px] disabled:opacity-50'
+                            >
+                                {isResetingPd ? "Resetting..." : "Reset Password"}
+                            </button>
                             <hr className='mt-[10px] mb-[10px]' />
                         </form>
 
                     </div>
                     <div className="mt-1.5 mb-1.5 ">
-                        <p className='justify-self-center content-center '><i class="fa-solid fa-arrow-left-long"></i>   Back to <Link className='text-[#fe4c4d]' to={"/register"}>Login</Link></p>
+                        <p className='justify-self-center content-center'>
+                            <i className="fa-solid fa-arrow-left-long mr-1"></i> Back to <Link className='text-[#fe4c4d] hover:underline' to={"/login"}>Login</Link>
+                        </p>
                     </div>
 
                 </div>

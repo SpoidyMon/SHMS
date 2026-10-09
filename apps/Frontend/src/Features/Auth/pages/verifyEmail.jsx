@@ -9,9 +9,9 @@ const VerifyEmail = () => {
     const { loading, handleVerifyEmail, handleResendOtp } = useAuth()
 
     const [email, setEmail] = useState(location.state?.email || "");
-    const [otp, setOtp] = useState(["", "", "", "", "", "",]);
+    const [otp, setOtp] = useState(["", "", "", "", "", ""]);
     const [timer, setTimer] = useState(60)
-    const [message, setMessage] = useState({ test: "", type: "" });
+    const [message, setMessage] = useState({ text: "", type: "" });
     const [isResending, setIsResending] = useState(false)
 
     const inputRefs = useRef([])  // for otp reference buckets
@@ -49,7 +49,7 @@ const VerifyEmail = () => {
 
     const handlePaste = (e) => {
         e.preventDefault();
-        const pasteData = e.clipboardData.getdata('text').replace(/[^0-9]/g, '').slice(0 - 6);
+        const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
         if (!pasteData) return
 
         const newOtp = [...otp]  //half paste
@@ -95,6 +95,7 @@ const VerifyEmail = () => {
         if (timer > 0 || isResending) return
         if (!email.trim()) {
             setMessage({ text: 'Please enter your Email to send Otp', type: 'error' })
+            return
         }
         setIsResending(true);
         setMessage({ text: "", type: "" })

@@ -24,8 +24,9 @@ export const router = createBrowserRouter([
         path: "/verify-email",
         element: <VerifyEmail />
     },
+
     {
-        path: "/reset-password",
+        path: "/change-Password",
         element: <NewPdOtp />
     },
     {

@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useEffect, useState } from "react"
 import { getMe } from "./Services/Auth.services";
 
@@ -12,11 +13,11 @@ export const AuthProvider = ({ children }) => {
         const getAndSetUser = async () => {
             try {
                 const response = await getMe();
-                setUser(response.user)
-            } catch (error) {
-                setUser(null)
+                setUser(response?.user ?? null);
+            } catch {
+                setUser(null);
             } finally {
-                setLoading(false)
+                setLoading(false);
             }
         }
         getAndSetUser();

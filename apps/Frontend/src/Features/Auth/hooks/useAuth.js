@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
-import { login, register, verifyEmail, resendOtp,forgotPassword,resetPassword } from '../Services/Auth.services'
+import { login,logout, register, verifyEmail, resendOtp,forgotPassword,resetPassword } from '../Services/Auth.services'
 
 export const useAuth = () => {
     const { user, setUser, loading, setLoading } = useContext(AuthContext)
@@ -8,11 +8,12 @@ export const useAuth = () => {
     const handleLogin = async ({ email, password }) => {
         setLoading(true);
         try {
-            const data = await login({ email, password })
-            setUser(data?.user ?? null)
-            return data
+            const data = await login({ email, password });
+            setUser(data?.user ?? null);
+            return data;
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -22,10 +23,10 @@ export const useAuth = () => {
         setLoading(true);
         try {
             const data = await register({ username, email, password });
-            // setUser(data?.user ?? null);dont
             return data;
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            throw error;
         } finally {
             setLoading(false);
         }
@@ -34,12 +35,13 @@ export const useAuth = () => {
     const handleLogout = async () => {
         setLoading(true);
         try {
-            await login();
+            await logout();
             setUser(null);
         } catch (error) {
-            console.log(error)
+            console.log(error);
+            throw error;
         } finally {
-            setLoading(true)
+            setLoading(false);
         }
     }
 
@@ -47,7 +49,7 @@ export const useAuth = () => {
         setLoading(true);
         try {
             const data = await verifyEmail({ email, otp })
-            if (data?.uer) {
+            if (data?.user) {
                 setUser(data.user);
             }
             return data;
@@ -88,7 +90,7 @@ export const useAuth = () => {
         }
     }
 
-    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleForgetPassword, handleVerifyEmail, handleResendOtp }
+    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleForgetPassword,handleResetPassword, handleVerifyEmail, handleResendOtp }
 }
 
 export default useAuth

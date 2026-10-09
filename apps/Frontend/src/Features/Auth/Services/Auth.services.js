@@ -2,100 +2,82 @@ import { apiAuth } from "../config/config";
 
 export async function register({ username, email, password }) {
     try {
-        const response = await apiAuth.post("/register",
-            { username, email, password }
-        )
+        const response = await apiAuth.post("/register", { username, email, password });
         return response.data;
-
     } catch (error) {
-        console.log("Error in apiAuth Service of register : " + error)
+        console.log("Error in apiAuth Service of register : " + error);
+        throw error;
     }
 }
 
 export async function login({ email, password }) {
     try {
-        const response = await apiAuth.post("/login",
-            { email, password }
-        )
+        const response = await apiAuth.post("/login", { email, password });
         return response.data;
-
     } catch (error) {
-        console.log("Error in apiAuth Service of login : " + error)
+        console.log("Error in apiAuth Service of login : " + error);
+        throw error;
     }
 }
 
 export async function logout() {
     try {
-        const response = await apiAuth.get("/logout"
-        )
-        return response;
-
+        const response = await apiAuth.post("/logout");
+        return response.data;
     } catch (error) {
-        console.log("Error in apiAuth Service of logout : " + error)
+        console.log("Error in apiAuth Service of logout : " + error);
+        throw error;
     }
 }
 
 export async function getMe() {
     try {
-        const response = await apiAuth.get("/getme"
-        )
-        return response;
-
+        const response = await apiAuth.get("/getme");
+        return response.data;
     } catch (error) {
         if (error.response?.status !== 401) {
-            console.error(error)
+            console.error("Error in apiAuth Service of getMe : ", error);
         }
-        console.log("Error in apiAuth Service of getMe : " + error)
-        return null
+        return null;
     }
 }
 
-
-export async function verifyEmail({email,otp}) {
+export async function verifyEmail({ email, otp }) {
     try {
-        const response = await apiAuth.post("/verify-email",
-            {email,otp}
-        )
+        const response = await apiAuth.post("/verify-email", { email, otp });
         return response.data;
-
     } catch (error) {
-        console.log("Error in apiAuth Service of VerifyEmail : " + error)
+        console.log("Error in apiAuth Service of verifyEmail : " + error);
         throw error;
     }
 }
 
-export async function resendOtp({email}) {
+export async function resendOtp({ email }) {
     try {
-        const response = await apiAuth.post("/resend-otp",
-            {email}
-        )
+        const response = await apiAuth.post("/resend-otp", { email });
         return response.data;
-
     } catch (error) {
-        console.log("Error in apiAuth Service of resendOtp : " + error)
+        console.log("Error in apiAuth Service of resendOtp : " + error);
         throw error;
     }
 }
 
-export async function forgotPassword({email}) {
+export async function forgotPassword({ email }) {
     try {
-        const response = await apiAuth.get("/forget-password",
-            {email}
-        )
-        return response;
-
+        const response = await apiAuth.post("/forget-password", { email });
+        return response.data;
     } catch (error) {
-        console.log("Error in apiAuth Service of register : " + error)
+        console.log("Error in apiAuth Service of forgotPassword : " + error);
+        throw error;
     }
 }
-export async function resetPassword({email,otp,newPassword}) {
-    try {
-        const response = await apiAuth.get("/reset-password",
-            {email,otp,newPassword}
-        )
-        return response;
 
+export async function resetPassword({ email, otp, newPassword }) {
+    try {
+        const response = await apiAuth.post("/reset-password", { email, otp, newPassword });
+        return response.data;
     } catch (error) {
-        console.log("Error in apiAuth Service of register : " + error)
+        console.log("Error in apiAuth Service of resetPassword : " + error);
+        throw error;
     }
 }
