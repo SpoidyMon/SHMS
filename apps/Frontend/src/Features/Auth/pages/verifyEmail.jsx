@@ -1,7 +1,69 @@
-import React from 'react'
-import { Link } from 'react-router'
+import React, { useEffect, useRef, useState } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router'
+import useAuth from "../hooks/useAuth"
 
-const verifyEmail = () => {
+const VerifyEmail = () => {
+
+    const navigate = useNavigate();
+    const location = useLocation();
+    const { loading, handleVerifyEmail, handleResendOtp } = useAuth()
+
+    const [email, setEmail] = useState(location.state?.email || "");
+    const [otp, setOtp] = useState(["", "", "", "", "", "",]);
+    const [timer, setTimer] = useState(60)
+    const [message, setMessage] = useState({ test: "", type: "" });
+    const [isResending, setIsResending] = useState(false)
+
+    const inputRefs = useRef([])  // for otp reference buckets
+
+    useEffect(() => {
+        if (timer <= 0) return;
+        const interval = setInterval(() => {
+            setTimer((prev) => prev - 1);
+        }, 1000);
+
+    }, [timer])
+
+    const formatTimer = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const sec = seconds % 60;
+        return `${String(mins).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
+    }
+
+    const handleOtpChange = (index, value) => {
+        const cleanValue = value.replace(/[^0-9]/g, '')
+        const newOtp = [...otp];
+        newOtp[index] = cleanValue.slice(-1);
+        setOtp(newOtp);
+
+        if (cleanValue && index < 5) { //mocing cursor to next boc
+            inputRefs.current[index + 1]?.focus()
+        }
+    }
+
+    const handleKeyDown = (index, e) => {
+        if (e.key === "Backspace" && !otp[index] && index > 0) {
+            inputRefs.current[index - 1]?.focus()
+        }
+    }
+
+    const handlePaste = (e) => {
+        e.preventDefault();
+        const pasteData=e.clipboardData.getdata('text').replace(/[^0-9]/g,'').slice(0-6);
+        if(!pasteData) return
+
+        const newOtp=[...otp]  //half paste
+        for(let i=0;i<pasteData.length;i++){
+            newOtp[i]=pasteData[i]
+        }
+        setOtp(newOtp);
+
+        const focusIndex=Math.min(pasteData.length,5)
+        inputRefs.current[focusIndex]?.focus();
+    }
+
+    
+
     return (
         <main>
             <div className='h-screen w-full bg-[#c5bee5] justify-items-center content-center'>
@@ -49,4 +111,4 @@ const verifyEmail = () => {
     )
 }
 
-export default verifyEmail
+export default VerifyEmail

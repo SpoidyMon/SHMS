@@ -1,7 +1,6 @@
-import React from 'react'
 import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
-import { login, register,verifyEmail,resendOtp } from '../Services/Auth.services'
+import { login, register, verifyEmail, resendOtp } from '../Services/Auth.services'
 
 export const useAuth = () => {
     const { user, setUser, loading, setLoading } = useContext(AuthContext)
@@ -44,9 +43,33 @@ export const useAuth = () => {
         }
     }
 
-    
+    const handleVerifyEmail = async ({ email, otp }) => {
+        setLoading(true);
+        try {
+            const data = await verifyEmail({ email, otp })
+            if (data?.uer) {
+                setUser(data.user);
+            }
+            return data;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        } finally {
+            setLoading(false);
+        }
+    }
 
-    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout }
+    const handleResendOtp = async ({ email }) => {
+        try {
+            const data = await resendOtp({ email });
+            return data;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleVerifyEmail,handleResendOtp }
 }
 
 export default useAuth
