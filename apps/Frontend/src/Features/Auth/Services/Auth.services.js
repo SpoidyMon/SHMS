@@ -5,7 +5,7 @@ export async function register({ username, email, password }) {
         const response = await apiAuth.post("/register",
             { username, email, password }
         )
-        return response;
+        return response.data;
 
     } catch (error) {
         console.log("Error in apiAuth Service of register : " + error)
@@ -17,7 +17,7 @@ export async function login({ email, password }) {
         const response = await apiAuth.post("/login",
             { email, password }
         )
-        return response;
+        return response.data;
 
     } catch (error) {
         console.log("Error in apiAuth Service of login : " + error)
@@ -37,7 +37,7 @@ export async function logout() {
 
 export async function getMe() {
     try {
-        const response = await apiAuth.get("/get-me"
+        const response = await apiAuth.get("/getme"
         )
         return response;
 
@@ -56,22 +56,24 @@ export async function verifyEmail({email,otp}) {
         const response = await apiAuth.post("/verify-email",
             {email,otp}
         )
-        return response;
+        return response.data;
 
     } catch (error) {
         console.log("Error in apiAuth Service of VerifyEmail : " + error)
+        throw error;
     }
 }
 
 export async function resendOtp({email}) {
     try {
-        const response = await apiAuth.post("/resend-Otp",
+        const response = await apiAuth.post("/resend-otp",
             {email}
         )
-        return response;
+        return response.data;
 
     } catch (error) {
         console.log("Error in apiAuth Service of resendOtp : " + error)
+        throw error;
     }
 }
 

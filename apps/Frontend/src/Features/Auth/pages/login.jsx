@@ -33,6 +33,7 @@ const login = () => {
               <div className="input mt-[2px]">
                 <label htmlFor="password">Enter Password</label><br />
                 <input className='border border-gray-300 p-[5px] mt-1 w-full' type="password" placeholder='Password' name='password' id='password' />
+                <p className='flex  justify-end'><Link className='text-[#fe4c4d] text-[12px] font-medium ' to={"/forget-password"}>Forgot Password?</Link></p>
               </div>
 
               <hr className='mt-[10px] mb-[10px]' />
