@@ -11,8 +11,9 @@ model user {
   id             Int      @id @default(autoincrement())
   username       String?
   email          String   @unique
+  mobileNo       String      //@unique not for now
   createdAt      DateTime @default(now())
-  role           Role     @default(USER)
+  role           Role     
   hashedpassword String
   verified       Boolean  @default(false) @map("Verified")
   otps           otp[]
@@ -28,10 +29,10 @@ model otp {
 }
 
 enum Role {
-  USER
+  // USER
   ADMIN
   SUPERVISOR
   MANAGER
-  CHEFF
+  CHEF
   WAITER
 }

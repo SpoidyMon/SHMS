@@ -11,6 +11,7 @@ const sanitizer = (user) => {
         id: user.id,
         username: user.username,
         email: user.email,
+        mobileNo:user.mobileNo,
         role: user.role,
         verified: user.verified,
         createdAt: user.createdAt
@@ -19,10 +20,10 @@ const sanitizer = (user) => {
 
 const registerController = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        if (!username || !email || !password) {
+        const { username, email, password, mobileNo } = req.body;
+        if (!username || !email || !password || !mobileNo ) {
             return res.status(400).json({
-                message: "Username, email, and password are required"
+                message: "Username, email, mobile no, role and password are required"
             });
         }
 
@@ -42,6 +43,7 @@ const registerController = async (req, res) => {
             data: {
                 username,
                 email,
+                mobileNo,
                 hashedpassword
             }
         });
