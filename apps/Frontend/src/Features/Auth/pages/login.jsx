@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import useAuth from '../hooks/useAuth';
+import roleRedirect from '../../routesMap';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -24,7 +25,8 @@ const Login = () => {
     try {
       const response = await handleLogin({ email, password })
       if (response?.user) {
-        navigate("/", { state: { email } })
+        const destination=roleRedirect(response.user.role)
+        navigate(destination,{replace:true},{ state: { email } })
       } else {
         setErrorMessage(response?.message || "Login failed. Please check your credentials.")
       }

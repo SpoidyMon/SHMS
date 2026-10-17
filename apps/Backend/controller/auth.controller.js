@@ -1,7 +1,8 @@
-import prisma, { prisma as Prisma } from "../config/database.js";
+import { prisma as Prisma } from "../config/database.js";
 import config from "../config/config.js";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
+import crypto from "crypto "
 import { sendEmail } from "../Services/email.server.js";
 import { generateSecureOtp, getOtpHtml } from "../Utils/util.js";
 
@@ -11,7 +12,7 @@ const sanitizer = (user) => {
         id: user.id,
         username: user.username,
         email: user.email,
-        mobileNo:user.mobileNo,
+        mobileNo: user.mobileNo,
         role: user.role,
         verified: user.verified,
         createdAt: user.createdAt
@@ -21,7 +22,7 @@ const sanitizer = (user) => {
 const registerController = async (req, res) => {
     try {
         const { username, email, password, mobileNo } = req.body;
-        if (!username || !email || !password || !mobileNo ) {
+        if (!username || !email || !password || !mobileNo || !role) {
             return res.status(400).json({
                 message: "Username, email, mobile no, role and password are required"
             });
@@ -44,6 +45,7 @@ const registerController = async (req, res) => {
                 username,
                 email,
                 mobileNo,
+                role,
                 hashedpassword
             }
         });
@@ -489,8 +491,83 @@ const resetPasswordController = async (req, res) => {
             message: "Internal Server Error"
         });
     }
+}
 
+//setting password after invitation 
+const setPasswordforInvited = async (req, res) => {
+    try {
+        const { token, password } = req.body
+        if (!token || !password) {
+            return res.status(409).json({
+                success: false,
+                message: "Token and Password is required"
+            })
+        }
+        const inviteHashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
+        const invitedUser = await Prisma.user.findFirst({
+            where: {
+                inviteHashedToken
+            }
+        })
+
+        if (!invitedUser) {
+            return res.status(404).json({
+                success: false,
+                message: "Invalid or already used invitation link"
+            })
+        }
+
+        if (!invitedUser.inviteExpiresAt || invitedUser.inviteExpiresAt <= Date.now()) {
+            return res.status(400).json({
+                success: false,
+                message: "Invitation link has expired, Please request new link"
+            })
+        }
+
+        if (invitedUser.hashedpassword) {
+            return res.status(404).json({
+                message: "Your account has alread activitated"
+            })
+        }
+
+        const hashPasword = await bcrypt.hash(password, 10);
+
+        const result = await Prisma.user.update({
+            where: {
+                id: invitedUser.id,
+                inviteHashedToken,
+                inviteExpiresAt: {
+                    gt: new Date(),
+                },
+                hashedpassword: null
+            },
+            data: {
+                hashedpassword: hashPasword,
+                inviteTokenHash: null,
+                inviteExpiresAt: null
+            }
+        })
+
+        if (result.count !== 1) {
+            return res.status(400).json({
+                success: false,
+                message: "Invitation is invalid, expired, or already used.",
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: "Password set successfully. You can now log in.",
+        });
+    } catch (error) {
+        console.error("Set password error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Something went wrong while setting your password.",
+        });
+    }
 }
 
 

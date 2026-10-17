@@ -8,15 +8,28 @@ datasource db {
 }
 
 model user {
-  id             Int      @id @default(autoincrement())
-  username       String?
-  email          String   @unique
-  mobileNo       String      //@unique not for now
-  createdAt      DateTime @default(now())
-  role           Role     
-  hashedpassword String
-  verified       Boolean  @default(false) @map("Verified")
-  otps           otp[]
+  id        Int      @id @default(autoincrement())
+  username  String?
+  email     String   @unique
+  mobileNo  String //@unique not for now
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  role      Role
+
+  hashedpassword String?
+  isActive       Boolean    @default(true)
+  status         UserStatus @default(INVITED)
+  verified       Boolean    @default(false) @map("Verified")
+
+  inviteTokenHash String?   @unique
+  inviteExpiresAt DateTime?
+
+  // staff management
+  tokenVersion  Int       @default(0) // bump to invalidate old JWTs
+  createdById   Int? // which admin created this staff
+  deactivatedAt DateTime?
+  deletedAt     DateTime?
+  otps          otp[]
 }
 
 model otp {
@@ -35,4 +48,9 @@ enum Role {
   MANAGER
   CHEF
   WAITER
+}
+
+enum UserStatus {
+  INVITED
+  ACTIVE
 }

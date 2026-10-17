@@ -1,8 +1,8 @@
 import { apiAuth } from "../config/config";
 
-export async function register({ username, email, password,mobileNo }) {
+export async function register({ username, email, password,mobileNo,role }) {
     try {
-        const response = await apiAuth.post("/register", { username, email, password,mobileNo });
+        const response = await apiAuth.post("/register", { username, email, password,mobileNo,role });
         return response.data;
     } catch (error) {
         console.log("Error in apiAuth Service of register : " + error);

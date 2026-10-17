@@ -6,8 +6,12 @@ import Forgetpassword from "./Features/Auth/pages/forgetpassword"
 import VerifyEmail from "./Features/Auth/pages/verifyEmail"
 import NewPdOtp from "./Features/Auth/pages/newPdOtp"
 import Home from "./Features/Dashboard/components/home"
+import Unauthorized from "./Features/Auth/pages/unauthorized"
+import AdminDashboard from "./Features/Admin/pages/adminDashboard"
 
 export const router = createBrowserRouter([
+
+    //Public Routes
     {
         path: "/register",
         element: <Register />
@@ -24,10 +28,17 @@ export const router = createBrowserRouter([
         path: "/verify-email",
         element: <VerifyEmail />
     },
-
     {
         path: "/change-Password",
         element: <NewPdOtp />
+    },
+    {
+        path: "/unauthorized",
+        element: <Unauthorized />
+    },
+    {
+        path: "/admin/dashboard",
+        element: <Protected roles={["ADMIN"]}><AdminDashboard /></Protected>
     },
     {
         path: "/",

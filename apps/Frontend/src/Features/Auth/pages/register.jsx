@@ -9,7 +9,7 @@ const Register = () => {
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [mobileNo, setMobileNo] = useState("")
-    // const [role, setRole] = useState("")
+    const [role, setRole] = useState("")
     const [password, setPassword] = useState("")
     const [isRegistering, setIsRegistering] = useState(false)
     const [errorMessage, setErrorMessage] = useState("")
@@ -19,7 +19,7 @@ const Register = () => {
         setErrorMessage("")
         setIsRegistering(true);
         try {
-            const response = await handleRegister({ username, email, password, mobileNo });
+            const response = await handleRegister({ username, email, password, mobileNo, role });
             if (response?.user) {
                 navigate("/verify-email", { state: { email } })
             } else {
@@ -89,7 +89,7 @@ const Register = () => {
                                 />
                             </div>
 
-                            {/* <div className="input mt-[2px]">
+                            <div className="input mt-[2px]">
                                 <label htmlFor="role">Your Role</label><br />
                                 <select
                                     id="role"
@@ -105,7 +105,7 @@ const Register = () => {
                                     <option value="CHEF">CHEF</option>
                                     <option value="WAITER">WAITER</option>
                                 </select>
-                            </div> */}
+                            </div>
 
                             <div className="input mt-[2px]">
                                 <label htmlFor="password">Enter Password</label><br />

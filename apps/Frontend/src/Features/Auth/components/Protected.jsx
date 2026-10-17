@@ -1,23 +1,32 @@
 import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
-import { Navigate } from 'react-router'
+import { Navigate, Outlet, useLocation, } from 'react-router'
 
-
-const Protected = ({ children }) => {
+const Protected = ({ roles = [] }) => {
     const { user, loading } = useContext(AuthContext)
+    const location = useLocation()
 
     if (loading) {
         return (
-            <main><h1>Loading...</h1></main>
+            <div className='items-center justify-center'>
+                <h1>Loading ....</h1>
+            </div>
         )
     }
-
     if (!user) {
-        return <Navigate to={"/login"} />
+        return (
+            <Navigate
+                to="/login"
+                replace
+                state={{ from: location }}
+            />
+        )
+    }
+    if (roles.length > 0 && !roles.includes(user.roles)) {
+        <Navigate to="unauthorized" replace />
     }
 
-
-    return children
+    return <Outlet />
 }
 
 export default Protected
