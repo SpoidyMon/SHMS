@@ -135,5 +135,102 @@ const resendInvitaionEmail = async (req, res) => {
     }
 
 }
-const adminController = { createStaffMember,resendInvitaionEmail }
+
+const listallstaff = async (req, res) => {
+    try {
+
+        const staffList = await Prisma.user.findMany({
+            where: {
+                role: {
+                    not: "ADMIN"
+                },
+                deletedAt: null
+            },
+            select: {
+                id: true,
+                username: true,
+                email: true,
+                mobileNo: true,
+                role: true,
+                status: true,
+                isActive: true,
+                verified: true,
+                createdAt: true,
+            },
+            orderBy: {
+                createdAt: "desc",
+            },
+        })
+        return res.status(200).json({
+            success: true,
+            count: staff.length,
+            staffList,
+        });
+    } catch (error) {
+        console.error("Get all staff error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to fetch staff members.",
+        });
+    }
+}
+
+const deactivateUser = async (req, res) => {
+    try {
+        const { email, id } = req.body
+        if (!email || !id) {
+            return res.status(409).json({
+                success: false,
+                message: "Email and Id required"
+            })
+        }
+        const isUserExisting = await Prisma.user.findUnique({
+            where: {
+                id,
+                email,
+            }
+        })
+        if (!isUserExisting) {
+            return res.status(404).json({
+                success: false,
+                message: "User deleted or doesn't exist"
+            })
+        }
+
+        if (isUserExisting.deactivatedAt) {
+            return res.status(404).json({
+                success: false,
+                message: "User is already deactivated"
+            })
+        }
+
+        const deactivatedUser = await Prisma.user.update({
+            where: {
+                id,
+                email
+            },
+            data: {
+                isActive: false,
+                status: DISABLED,
+                deactivatedAt: Date.now()
+            }
+        })
+
+        return res.status(200).json({
+            success: true,
+            message: "User deactivated successfully",
+            user: sanitizer(deactivatedUser)
+        })
+    } catch (error) {
+        console.error("Deactivate staff error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to deactivate staff members.",
+        });
+    }
+
+}
+const adminController = { createStaffMember, resendInvitaionEmail, listallstaff,deactivateUser }
 export default adminController 

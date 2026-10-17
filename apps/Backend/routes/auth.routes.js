@@ -18,4 +18,7 @@ authrouter.post("/resend-otp", authController.resendOtpController);
 authrouter.post("/forget-password",authController.forgetPasswordController)
 authrouter.post("/reset-password",authController.resetPasswordController)
 
+//for admin invited staff set password
+authrouter.post("/set-password",authController.setPasswordforInvited)
+
 export default authrouter;

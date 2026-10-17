@@ -2,7 +2,7 @@ import { prisma as Prisma } from "../config/database.js";
 import config from "../config/config.js";
 import bcrypt from "bcryptjs";
 import JWT from "jsonwebtoken";
-import crypto from "crypto "
+import crypto from "crypto"
 import { sendEmail } from "../Services/email.server.js";
 import { generateSecureOtp, getOtpHtml } from "../Utils/util.js";
 
@@ -507,7 +507,7 @@ const setPasswordforInvited = async (req, res) => {
 
         const invitedUser = await Prisma.user.findFirst({
             where: {
-                inviteHashedToken
+                inviteTokenHash:inviteHashedToken
             }
         })
 
@@ -533,10 +533,10 @@ const setPasswordforInvited = async (req, res) => {
 
         const hashPasword = await bcrypt.hash(password, 10);
 
-        const result = await Prisma.user.update({
+        const result = await Prisma.user.updateMany({
             where: {
                 id: invitedUser.id,
-                inviteHashedToken,
+                inviteTokenHash:inviteHashedToken,
                 inviteExpiresAt: {
                     gt: new Date(),
                 },
@@ -580,7 +580,8 @@ const authController = {
     verifyEmailController,
     resendOtpController,
     forgetPasswordController,
-    resetPasswordController
+    resetPasswordController,
+    setPasswordforInvited
 };
 
 export default authController;

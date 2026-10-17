@@ -53,4 +53,5 @@ enum Role {
 enum UserStatus {
   INVITED
   ACTIVE
+  DISABLED
 }
