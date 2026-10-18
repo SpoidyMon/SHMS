@@ -1,20 +1,20 @@
-import JWT from "jsonwebtoken"
-import config from "../config/config"
-import { prisma as Prisma } from "../config/database"
+import JWT from "jsonwebtoken";
+import config from "../config/config.js";
+import { prisma as Prisma } from "../config/database.js";
 
 const reqAuth = async (req, res, next) => {
     try {
-        const cookieToken = req.cookie?.token
-        const authHeader = req.headers.authorisation
+        const cookieToken = req.cookies?.token;
+        const authHeader = req.headers.authorization || req.headers.authorisation;
 
         const bearerToken = authHeader?.startsWith("Bearer ") ? authHeader.slice(7) : null;
 
-        const token = cookieToken || bearerToken
+        const token = cookieToken || bearerToken;
         if (!token) {
-            return res.status(404).json({
+            return res.status(401).json({
                 success: false,
                 message: "Authentication required"
-            })
+            });
         }
 
         const decoded = JWT.verify(token, config.JWT_SECRET);
@@ -28,14 +28,17 @@ const reqAuth = async (req, res, next) => {
                 username: true,
                 email: true,
                 role: true,
+                status: true,
+                isActive: true,
+                deletedAt: true,
             }
-        })
+        });
 
-        if (!user) {
-            return res.status(404).json({
+        if (!user || user.status === "DISABLED" || !user.isActive || user.deletedAt) {
+            return res.status(401).json({
                 success: false,
-                message: "User no longer exist"
-            })
+                message: "User account is disabled or no longer exists"
+            });
         }
         req.user = user;
         next();

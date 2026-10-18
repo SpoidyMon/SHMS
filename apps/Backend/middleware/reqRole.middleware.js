@@ -1,21 +1,21 @@
 
-const reqRole=(...roles)=>{
-    return (req,res,next)=>{
-        if(!req.user){
-            return res.status(404).json({
-                success:false,
-                message:"Authentication Required"
-            })
+const reqRole = (...roles) => {
+    return (req, res, next) => {
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                message: "Authentication Required"
+            });
         }
 
-        if(!roles.includes(res.user.roles)){
-            return res.status(404).json({
-                success:false,
-                message:"You do not have the access for this page"
-            })
+        if (!roles.includes(req.user.role)) {
+            return res.status(403).json({
+                success: false,
+                message: "You do not have access to this resource"
+            });
         }
         next();
-    }
-}
+    };
+};
 
 export default reqRole;

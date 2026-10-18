@@ -1,59 +1,60 @@
-import prisma, { prisma as Prisma } from "../config/database"
-import { sendEmail } from "../Services/email.server"
-import { staffInviteTemplate } from "../Utils/util"
-import crypto from "crypto"
+import prisma, { prisma as Prisma } from "../config/database.js";
+import { sendEmail } from "../Services/email.server.js";
+import { staffInviteTemplate } from "../Utils/util.js";
+import crypto from "crypto";
+import config from "../config/config.js";
 
 const sanitizer = (user) => {
-    if (!user) return null
+    if (!user) return null;
     return {
-        iid: user.id,
+        id: user.id,
         username: user.username,
         email: user.email,
         mobileNo: user.mobileNo,
         role: user.role,
         verified: user.verified,
         createdAt: user.createdAt
-    }
-}
+    };
+};
 
 const createStaffMember = async (req, res) => {
     try {
-        const { username, email, mobileNo, role } = req.body
+        const { username, email, mobileNo, role } = req.body;
         if (!username || !email || !mobileNo || !role) {
             return res.status(400).json({
-                message: "Username,email and mobile No is required"
-            })
+                message: "Username, email, mobileNo, and role are required"
+            });
         }
 
         const existingUser = await Prisma.user.findUnique({
             where: { email }
-        })
+        });
 
         if (existingUser) {
             return res.status(409).json({
-                message: "staff with this email already exist"
-            })
+                message: "Staff with this email already exists"
+            });
         }
 
-        const token = crypto.randomBytes(32).toString("hex")
+        const token = crypto.randomBytes(32).toString("hex");
         const invitedUser = await Prisma.user.create({
             data: {
                 username,
                 email,
                 mobileNo,
                 role,
-                //temporary token for the link
+                createdById: req.user?.id || null,
+                // temporary token for the link
                 inviteTokenHash: crypto.createHash("sha256").update(token).digest("hex"),
                 inviteExpiresAt: new Date(
                     Date.now() + 24 * 60 * 60 * 1000
                 )
-
             }
-        })
-        const inviteLink = `http://localhost:5173/api/auth/set-password?token=${token}`
-        const inviteHtml = staffInviteTemplate(inviteLink, role)
+        });
+        const inviteLink = `${config.CLIENT_URL}/set-password?token=${token}`;
+        const inviteHtml = staffInviteTemplate(inviteLink, role);
 
-        await sendEmail(email, `Admin's Invitation as ${role}`, `Your Invite link is ${inviteLink}`, inviteHtml)
+        await sendEmail(email, `Admin's Invitation as ${role}`, `Your Invite link is ${inviteLink}`, inviteHtml);
 
         return res.status(201).json({
             message: "Invitation Send Successfully.",
@@ -106,7 +107,7 @@ const resendInvitaionEmail = async (req, res) => {
 
         //regenerating token 
         const token = crypto.randomBytes(32).toString("hex")
-        await Prisma.user.update({
+        const invitedUser=await Prisma.user.update({
             where: {
                 email
             },
@@ -118,10 +119,11 @@ const resendInvitaionEmail = async (req, res) => {
             }
         })
 
-        const inviteLink = `http://localhost:5173/api/auth/set-password?token=${token}`
-        const inviteHtml = staffInviteTemplate(inviteLink, role)
+        const inviteLink = `${config.CLIENT_URL}/set-password?token=${token}`;
+        const inviteRole = role || isUserExisting.role;
+        const inviteHtml = staffInviteTemplate(inviteLink, inviteRole);
 
-        await sendEmail(email, `Admin's Invitation as ${role}`, `Your Invite link is ${inviteLink}`, inviteHtml)
+        await sendEmail(email, `Admin's Invitation as ${inviteRole}`, `Your Invite link is ${inviteLink}`, inviteHtml);
 
         return res.status(201).json({
             message: "Invitation Send Successfully.",
@@ -163,7 +165,7 @@ const listallstaff = async (req, res) => {
         })
         return res.status(200).json({
             success: true,
-            count: staff.length,
+            count: staffList.length,
             staffList,
         });
     } catch (error) {
@@ -186,8 +188,7 @@ const deactivateUser = async (req, res) => {
             })
         }
         const isUserExisting = await Prisma.user.findUnique({
-            where: {
-                id,
+            where: {  
                 email,
             }
         })
@@ -207,13 +208,12 @@ const deactivateUser = async (req, res) => {
 
         const deactivatedUser = await Prisma.user.update({
             where: {
-                id,
-                email
+                id:Number(id)
             },
             data: {
                 isActive: false,
-                status: DISABLED,
-                deactivatedAt: Date.now()
+                status: "DISABLED",
+                deactivatedAt: new Date()
             }
         })
 
@@ -232,5 +232,64 @@ const deactivateUser = async (req, res) => {
     }
 
 }
-const adminController = { createStaffMember, resendInvitaionEmail, listallstaff,deactivateUser }
+
+const deleteStaff = async (req, res) => {
+    try {
+        const { email, id } = req.body
+        if (!email || !id) {
+            return res.status(409).json({
+                success: false,
+                message: "Email and Id is required to delete the staff"
+            })
+        }
+
+        const isUserExisting = await Prisma.user.findFirst({
+            where: {
+                id: Number(id),
+                email
+            }
+        });
+        if (!isUserExisting) {
+            return res.status(404).json({
+                success: false,
+                message: "User With such credentials doesn't exist"
+            });
+        }
+        if (isUserExisting.deletedAt) {
+            return res.status(404).json({
+                success: false,
+                message: "User already has been deleted"
+            });
+        }
+
+        const deletedStaff = await Prisma.user.update({
+            where: {
+                id: Number(id)
+            },
+            data: {
+                deletedAt: new Date(),
+                isActive: false,
+                status: "DISABLED"
+            }
+        });
+
+        return res.status(200).json({
+            success: true,
+            message: 'User has been successfully deleted',
+            user: sanitizer(deletedStaff)
+        })
+
+    } catch (error) {
+        console.error("Delete staff error:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Failed to Delete staff member.",
+        });
+
+    }
+}
+
+
+const adminController = { createStaffMember, resendInvitaionEmail, listallstaff, deactivateUser,deleteStaff }
 export default adminController 

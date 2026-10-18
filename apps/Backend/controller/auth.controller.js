@@ -21,7 +21,7 @@ const sanitizer = (user) => {
 
 const registerController = async (req, res) => {
     try {
-        const { username, email, password, mobileNo } = req.body;
+        const { username, email, password, mobileNo,role } = req.body;
         if (!username || !email || !password || !mobileNo || !role) {
             return res.status(400).json({
                 message: "Username, email, mobile no, role and password are required"
@@ -99,6 +99,12 @@ const loginController = async (req, res) => {
         if (!registeredUser.verified) {
             return res.status(403).json({
                 message: "Email not verified. Please verify your email before logging in."
+            });
+        }
+
+        if (!registeredUser.isActive || registeredUser.status === "DISABLED" || registeredUser.deletedAt) {
+            return res.status(403).json({
+                message: "This account has been disabled or removed."
             });
         }
 
@@ -410,9 +416,9 @@ const resetPasswordController = async (req, res) => {
         const { email, otp, newPassword } = req.body;
 
         if (!email || !otp || !newPassword) {
-            return res.status(405).json({
+            return res.status(400).json({
                 message: "All credentials required"
-            })
+            });
         }
 
         const user = await Prisma.user.findUnique({
@@ -545,7 +551,9 @@ const setPasswordforInvited = async (req, res) => {
             data: {
                 hashedpassword: hashPasword,
                 inviteTokenHash: null,
-                inviteExpiresAt: null
+                inviteExpiresAt: null,
+                verified: true,
+                status: "ACTIVE"    
             }
         })
 
