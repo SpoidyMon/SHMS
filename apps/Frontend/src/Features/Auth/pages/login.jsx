@@ -25,8 +25,8 @@ const Login = () => {
     try {
       const response = await handleLogin({ email, password })
       if (response?.user) {
-        const destination=roleRedirect(response.user.role)
-        navigate(destination,{replace:true},{ state: { email } })
+        const destination=roleRedirect[response.user.role] || "/";
+        navigate(destination,{replace:true,state: { email } })
       } else {
         setErrorMessage(response?.message || "Login failed. Please check your credentials.")
       }

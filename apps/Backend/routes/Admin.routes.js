@@ -6,7 +6,7 @@ import adminController from "../controller/admin.controller.js";
 const adminRouter = express.Router();
 
 // Apply authentication and ADMIN role check to all admin routes
-adminRouter.use(reqAuth, reqRole("ADMIN"));
+// adminRouter.use(reqAuth, reqRole("ADMIN"));
 // /admin --> primary route
 // adminRouter.post("/create-staff",reqAuth,reqRole("ADMIN"),adminController.createStaffMember)
 adminRouter.post("/create-staff",adminController.createStaffMember)

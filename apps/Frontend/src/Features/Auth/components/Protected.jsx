@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
 import { Navigate, Outlet, useLocation, } from 'react-router'
 
-const Protected = ({ roles = [] }) => {
+const Protected = ({ roles = [], children }) => {
     const { user, loading } = useContext(AuthContext)
     const location = useLocation()
 
@@ -22,11 +22,12 @@ const Protected = ({ roles = [] }) => {
             />
         )
     }
-    if (roles.length > 0 && !roles.includes(user.roles)) {
-        <Navigate to="unauthorized" replace />
+    const userRole = user.role || user.roles
+    if (roles.length > 0 && !roles.includes(userRole)) {
+        return <Navigate to="/unauthorized" replace />
     }
 
-    return <Outlet />
+    return children ? children : <Outlet />
 }
 
 export default Protected

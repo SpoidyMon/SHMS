@@ -4,9 +4,10 @@ import useAuth from "../hooks/useAuth"
 
 
 const SetPassword = () => {
-    const { token } = useSearchParams()
-    const {handleSetPassword}=useAuth()
-    const navigate=useNavigate()
+    const [searchParams] = useSearchParams()
+    const token = searchParams.get('token')
+    const { handleSetPassword } = useAuth()
+    const navigate = useNavigate()
 
     const [newPassword, setNewPassword] = useState("")
     const [confirmPassword, setConfirmPassword] = useState("")
@@ -28,9 +29,9 @@ const SetPassword = () => {
         }
         setIsPasswordSetting(true)
         try {
-            const response=await handleSetPassword({token,newPassword})
-            if(response){
-                setMessage({text:"Password has been set successfully",type:"success"})
+            const response = await handleSetPassword({ token, password:newPassword })
+            if (response) {
+                setMessage({ text: "Password has been set successfully", type: "success" })
                 setTimeout(() => {
                     navigate("/login")
                 }, 1000);
@@ -98,14 +99,7 @@ const SetPassword = () => {
 
                             <hr className='mt-[10px] mb-[10px]' />
                         </form>
-
                     </div>
-                    {/* <div className="mt-1.5 mb-1.5 ">
-                        <p className='justify-self-center content-center'>
-                            <i className="fa-solid fa-arrow-left-long mr-1"></i> Back to <Link className='text-[#fe4c4d] hover:underline' to={"/login"}>Login</Link>
-                        </p>
-                    </div> */}
-
                 </div>
             </div>
         </main>
