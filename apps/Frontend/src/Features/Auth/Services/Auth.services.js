@@ -1,8 +1,8 @@
 import { apiAuth } from "../config/config";
 
-export async function register({ username, email, password,mobileNo,role }) {
+export async function register({ username, email, password, mobileNo, role }) {
     try {
-        const response = await apiAuth.post("/register", { username, email, password,mobileNo,role });
+        const response = await apiAuth.post("/register", { username, email, password, mobileNo, role });
         return response.data;
     } catch (error) {
         console.log("Error in apiAuth Service of register : " + error);
@@ -79,5 +79,15 @@ export async function resetPassword({ email, otp, newPassword }) {
     } catch (error) {
         console.log("Error in apiAuth Service of resetPassword : " + error);
         throw error;
+    }
+}
+
+export async function setPassword({ token, password }) {
+    try {
+        const response=await apiAuth.post("/set-password",{token,password})
+        return response.data
+    } catch (error) {
+        console.log("Error in the apiAuth Service of setPassword" + error)
+        throw error
     }
 }

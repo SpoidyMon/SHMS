@@ -31,6 +31,7 @@ const reqAuth = async (req, res, next) => {
                 status: true,
                 isActive: true,
                 deletedAt: true,
+                tokenVersion: true,
             }
         });
 
@@ -40,6 +41,14 @@ const reqAuth = async (req, res, next) => {
                 message: "User account is disabled or no longer exists"
             });
         }
+
+        if (decoded.tokenVersion === undefined || decoded.tokenVersion !== user.tokenVersion) {
+            return res.status(401).json({
+                success: false,
+                message: "Session expired or invalidated. Please log in again."
+            });
+        }
+
         req.user = user;
         next();
 

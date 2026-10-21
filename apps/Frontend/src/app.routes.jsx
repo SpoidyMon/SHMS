@@ -8,6 +8,7 @@ import NewPdOtp from "./Features/Auth/pages/newPdOtp"
 import Home from "./Features/Dashboard/components/home"
 import Unauthorized from "./Features/Auth/pages/unauthorized"
 import AdminDashboard from "./Features/Admin/pages/adminDashboard"
+import SetPassword from "./Features/Auth/pages/setPassword"
 
 export const router = createBrowserRouter([
 
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
     {
         path: "/unauthorized",
         element: <Unauthorized />
+    },
+    {
+        path:"/set-password",
+        element:<SetPassword/>
     },
     {
         path: "/admin/dashboard",

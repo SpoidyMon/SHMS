@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { AuthContext } from '../auth.context'
-import { login,logout, register, verifyEmail, resendOtp,forgotPassword,resetPassword } from '../Services/Auth.services'
+import { login, logout, register, verifyEmail, resendOtp, forgotPassword, resetPassword, setPassword } from '../Services/Auth.services'
 
 export const useAuth = () => {
     const { user, setUser, loading, setLoading } = useContext(AuthContext)
@@ -19,10 +19,10 @@ export const useAuth = () => {
         }
     }
 
-    const handleRegister = async ({ username, email, password,mobileNo,role }) => {
+    const handleRegister = async ({ username, email, password, mobileNo, role }) => {
         setLoading(true);
         try {
-            const data = await register({ username, email, password,mobileNo,role });
+            const data = await register({ username, email, password, mobileNo, role });
             return data;
         } catch (error) {
             console.log(error);
@@ -80,9 +80,9 @@ export const useAuth = () => {
             throw error;
         }
     }
-    const handleResetPassword=async({email,otp,newPassword})=>{
+    const handleResetPassword = async ({ email, otp, newPassword }) => {
         try {
-            const data=await resetPassword({email,otp,newPassword})
+            const data = await resetPassword({ email, otp, newPassword })
             return data
         } catch (error) {
             console.log(error)
@@ -90,7 +90,19 @@ export const useAuth = () => {
         }
     }
 
-    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleForgetPassword,handleResetPassword, handleVerifyEmail, handleResendOtp }
+    const handleSetPassword = async ({ token, password }) => {
+        try {
+            const data = await setPassword({ token, password })
+            return data
+        } catch (error) {
+            console.log(error)
+            throw error
+        }
+    }
+
+    return { user, setUser, loading, setLoading, handleLogin, handleRegister, handleLogout, handleForgetPassword, handleResetPassword, handleVerifyEmail, handleResendOtp ,
+        handleSetPassword
+    }
 }
 
 export default useAuth

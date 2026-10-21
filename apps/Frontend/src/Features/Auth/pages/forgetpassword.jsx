@@ -60,7 +60,7 @@ const Forgetpassword = () => {
                                     id='email'
                                     name='email'
                                     type="email"
-                                    required
+                                    required 
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
                                     placeholder='Type Email'

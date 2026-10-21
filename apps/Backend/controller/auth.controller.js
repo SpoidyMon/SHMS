@@ -116,7 +116,12 @@ const loginController = async (req, res) => {
         }
 
         const token = JWT.sign(
-            { id: registeredUser.id, username: registeredUser.username, role: registeredUser.role },
+            {
+                id: registeredUser.id,
+                username: registeredUser.username,
+                role: registeredUser.role,
+                tokenVersion: registeredUser.tokenVersion
+            },
             config.JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -270,7 +275,12 @@ const verifyEmailController = async (req, res) => {
         });
 
         const token = JWT.sign(
-            { id: verifiedUser.id, username: verifiedUser.username, role: verifiedUser.role },
+            {
+                id: verifiedUser.id,
+                username: verifiedUser.username,
+                role: verifiedUser.role,
+                tokenVersion: verifiedUser.tokenVersion
+            },
             config.JWT_SECRET,
             { expiresIn: "7d" }
         );
@@ -475,9 +485,11 @@ const resetPasswordController = async (req, res) => {
                 id: user.id
             },
             data: {
-                hashedpassword
+                hashedpassword,
+                tokenVersion: {
+                    increment: 1
+                }
             }
-
         })
 
         await Prisma.otp.deleteMany({
@@ -553,7 +565,10 @@ const setPasswordforInvited = async (req, res) => {
                 inviteTokenHash: null,
                 inviteExpiresAt: null,
                 verified: true,
-                status: "ACTIVE"    
+                status: "ACTIVE",
+                tokenVersion: {
+                    increment: 1
+                }
             }
         })
 

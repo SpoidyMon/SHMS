@@ -213,7 +213,10 @@ const deactivateUser = async (req, res) => {
             data: {
                 isActive: false,
                 status: "DISABLED",
-                deactivatedAt: new Date()
+                deactivatedAt: new Date(),
+                tokenVersion: {
+                    increment: 1
+                }
             }
         })
 
@@ -269,7 +272,10 @@ const deleteStaff = async (req, res) => {
             data: {
                 deletedAt: new Date(),
                 isActive: false,
-                status: "DISABLED"
+                status: "DISABLED",
+                tokenVersion: {
+                    increment: 1
+                }
             }
         });
 
