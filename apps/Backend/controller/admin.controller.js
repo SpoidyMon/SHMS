@@ -1,4 +1,4 @@
-import prisma, { prisma as Prisma } from "../config/database.js";
+import { prisma as Prisma } from "../config/database.js";
 import { sendEmail } from "../Services/email.server.js";
 import { staffInviteTemplate } from "../Utils/util.js";
 import crypto from "crypto";
