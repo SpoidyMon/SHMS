@@ -190,7 +190,7 @@ const editMenuitem = async (req, res) => {
         if (Object.keys(dataToUpdate).length === 0) {
             return res.status(400).json({
                 success: false,
-                message: "At least one editable field is required"
+                message: "At least one field is required to make update"
             });
         }
 
@@ -260,7 +260,7 @@ const isAvailableToggle = async (req, res) => {
     }
 };
 
-export const menuController = {
+export default menuController = {
     createMenuItem,
     deleteMenuItem,
     editMenuitem,

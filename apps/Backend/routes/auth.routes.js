@@ -11,7 +11,7 @@ authrouter.post("/logout", authController.logoutController);
 authrouter.get("/logout", authController.logoutController);
 authrouter.get("/getme", reqAuth, authController.getMeController);
 authrouter.post("/verify-email", authController.verifyEmailController);
-authrouter.get("/verify-email", authController.verifyEmailController);
+// authrouter.get("/verify-email", authController.verifyEmailController);
 authrouter.post("/resend-otp", authController.resendOtpController);
 
 

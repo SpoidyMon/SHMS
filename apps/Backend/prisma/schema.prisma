@@ -62,7 +62,7 @@ model Category {
   id           Int        @id @default(autoincrement())
   name         String     @unique
   displayOrder Int //admin can control the order items customer can see
-  isActive     Boolean // to mark unavaibale as for temporeary/permanent
+  isActive     Boolean  @default(true) // to mark unavaibale as for temporeary/permanent
   menuItems    MenuItem[]
 }
 
@@ -80,8 +80,8 @@ model MenuItem {
 }
 
 enum VegNonveg {
-  VegNon
-  NONVEG
+  VEG
+  NON_VEG
 }
 
 enum MenuGroups {
@@ -90,3 +90,25 @@ enum MenuGroups {
   Drinks
   Desserts
 }
+
+//Table Management 
+enum TableStatus {
+  AVAILABLE
+  OCCUPIED
+  RESERVED
+  OUT_OF_SERVICE
+}
+
+model Table {
+  id        String      @id @default(cuid())
+  number    Int         @unique
+  capcity   Int //in seats
+  status    TableStatus @default(AVAILABLE)
+  qrToken   String      @unique
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt()
+}
+
+
+a
