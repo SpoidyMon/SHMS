@@ -26,7 +26,7 @@ transporter.verify((error, success) => { // verifying the connection
 export const sendEmail = async (to, subject, text, html) => {
     try {
         const info = await transporter.sendMail({
-            from: `"SMHS Team" <${config.GOOGLE_USER}>`, // sender address
+            from: `"Your Name" <${config.GOOGLE_USER}>`, // sender address
             to, // list of receivers
             subject, // Subject line
             text, // plain text body

@@ -13,7 +13,6 @@ import SupervisorDashboard from "./Features/Supervisor/pages/supervisorDashboard
 import ChefDashboard from "./Features/Chef/pages/chefDashboard"
 import WaiterDashboard from "./Features/Waiter/pages/waiterDashboard"
 import SetPassword from "./Features/Auth/pages/setPassword"
-import File from "./Features/Auth/pages/file"
 
 export const router = createBrowserRouter([
 
@@ -69,9 +68,5 @@ export const router = createBrowserRouter([
     {
         path: "/",
         element: <Protected><Home /></Protected>
-    },
-    {
-        path:'/bakchodi',
-        element:<File/>
     }
 ])

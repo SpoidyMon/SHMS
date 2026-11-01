@@ -189,11 +189,10 @@ const deactivateUser = async (req, res) => {
         }
         const isUserExisting = await Prisma.user.findUnique({
             where: {  
-                id:Number(id),
                 email,
             }
         })
-        if (!isUserExistiidng) {
+        if (!isUserExisting) {
             return res.status(404).json({
                 success: false,
                 message: "User deleted or doesn't exist"
